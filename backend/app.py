@@ -22,7 +22,7 @@ def analyze_with_model(text):
     prediction = logreg_model.predict(vectorized)[0]
     return "Positive" if prediction == 1 else "Negative"
 
-# Analisis dengan Gemini (LLM)
+# Analisis dengan Geminii (LLM)
 def analyze_sentiment(text):
     prompt = f"Review: \"{text}\". Analyze the sentiment and answer with only one word: Positive, Negative, or Neutral."
     response = gemini_model.generate_content(prompt)
