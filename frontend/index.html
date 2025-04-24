@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sentiment Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body
+    class="flex items-center justify-center h-screen bg-gradient-to-r from-[#0f0f0f] to-[#3a3a3a]"
+  >
+    <div
+      class="bg-gradient-to-b from-[#f2f2f2] to-[#d9d9d9] p-8 rounded-[15px] shadow-[0px_10px_25px_rgba(0,0,0,0.3)] w-full max-w-md"
+    >
+      <h2 class="text-center mb-4 text-xl text-[#111] font-semibold">
+        Sentiment Analysis Text
+      </h2>
+      <textarea
+        id="text-input"
+        placeholder="Tulis sesuatu di sini..."
+        class="w-full h-32 p-2 text-base border border-gray-300 rounded resize-none mb-4"
+      ></textarea>
+      <button
+        onclick="analyze('textblob')"
+        class="w-full py-2 text-white rounded bg-gradient-to-r from-green-600 to-green-700 hover:brightness-70 transition duration-600 ease-in-out cursor-pointer mb-2"
+      >
+        Analyze with NLP
+      </button>
+      <button
+        onclick="analyze('gemini')"
+        class="w-full py-2 text-white rounded bg-gradient-to-r from-blue-600 to-blue-800 hover:brightness-70 transition duration-600 ease-in-out cursor-pointer"
+      >
+        Analyze with Gemini
+      </button>
+
+      <button onclick="analyze('gemini')" class="w-full py-2 text-black">
+        Output
+      </button>
+      <div id="loading" class="hidden text-base text-center text-gray-800 mt-4">
+        Loading...
+      </div>
+      <div
+        id="result"
+        class="mt-4 py-2 rounded text-white text-center font-bold hidden"
+      ></div>
+
+      <script>
+        async function analyze(method) {
+          const text = document.getElementById("text-input").value;
+          const loading = document.getElementById("loading");
+          const resultDiv = document.getElementById("result");
+
+          loading.classList.remove("hidden");
+          resultDiv.classList.add("hidden");
+
+          const response = await fetch("http://127.0.0.1:5000/analyze", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: text,
+              use_gemini: method === "gemini",
+            }),
+          });
+
+          const data = await response.json();
+          loading.classList.add("hidden");
+          resultDiv.classList.remove("hidden");
+
+          // Tambahan logika label berdasarkan metode
+          const label =
+            method === "gemini" ? "Sentiment Gemini" : "Sentiment NLP";
+          resultDiv.innerText = `${label}: ${data.sentiment || data.error}`;
+
+          // Warna background berdasarkan hasil
+          if (data.sentiment === "Positive") {
+            resultDiv.className =
+              "mt-4 py-2 rounded text-white text-center font-bold bg-green-600";
+          } else if (data.sentiment === "Negative") {
+            resultDiv.className =
+              "mt-4 py-2 rounded text-white text-center font-bold bg-red-600";
+          } else if (data.sentiment === "Neutral") {
+            resultDiv.className =
+              "mt-4 py-2 rounded text-white text-center font-bold bg-gray-600";
+          } else {
+            resultDiv.className =
+              "mt-4 py-2 rounded text-white text-center font-bold bg-yellow-600";
+          }
+        }
+      </script>
+    </div>
+  </body>
+</html>
